@@ -1,0 +1,9 @@
+{
+  "name": "lang-to-ppt-to-fullstack-ppt-deps",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Internal Node dependencies for the standalone skill (docx-js for SRS generation).",
+  "dependencies": {
+    "docx": "^9.5.1"
+  }
+}

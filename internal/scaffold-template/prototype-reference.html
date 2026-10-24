@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教学档案数字化系统 · 交互原型</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white'%3E%E6%A1%A3%3C/text%3E%3C/svg%3E">
+
+<style>
+  :root{
+    --brand:#2563eb; --brand-dark:#1d4ed8; --brand-soft:#e8f0fe;
+    --side:#f1f5f9; --border:#e2e8f0; --text:#0f172a; --muted:#64748b;
+    --amber:#d97706; --amber-bg:#fef3c7; --green:#16a34a; --green-bg:#dcfce7;
+    --red:#dc2626; --red-bg:#fee2e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:var(--text);background:#f6f8fb;font-size:14px}
+  a{color:var(--brand);text-decoration:none}
+
+  /* ===== 无JS 页面切换（:target 路由） ===== */
+  .view{display:none}
+  .view:target{display:block}
+  #login{display:block}
+  body:has(.view:target) #login{display:none}
+
+  .app{min-height:100vh;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;justify-content:space-between;background:var(--brand);color:#fff;padding:0 20px;height:56px;flex:none}
+  .topbar .brand{font-size:16px;font-weight:600;letter-spacing:.5px}
+  .topbar .user{display:flex;align-items:center;gap:12px;font-size:13px}
+  .topbar a{color:#fff;opacity:.9}
+  .body{display:flex;flex:1}
+  .side{width:210px;background:var(--side);border-right:1px solid var(--border);padding:16px 10px;flex:none}
+  .side .group{font-size:12px;color:var(--muted);margin:14px 8px 6px;letter-spacing:1px}
+  .side .group:first-child{margin-top:4px}
+  .side a.nav{display:block;padding:9px 12px;border-radius:6px;color:var(--text);font-size:14px;margin-bottom:2px}
+  .side a.nav:hover{background:#e2e8f0}
+  .side a.nav.active{background:var(--brand);color:#fff;font-weight:600}
+  .main{flex:1;padding:20px 24px;min-width:0}
+  .crumb{font-size:12px;color:var(--muted);margin-bottom:12px}
+  .crumb b{color:var(--text)}
+  h1.page{font-size:20px;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px}
+  .card h3{font-size:15px;margin-bottom:12px}
+  select,input[type=text],input[type=password]{border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:14px;background:#fff;min-width:160px}
+  label.lbl{display:inline-block;margin-right:8px;color:var(--muted);font-size:13px}
+  .btn{border:none;border-radius:6px;padding:8px 14px;font-size:14px;cursor:pointer;display:inline-block;text-align:center}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-dark)}
+  .btn-ghost{background:#fff;color:var(--text);border:1px solid var(--border)}
+  .btn-ghost:hover{background:#f1f5f9}
+  .btn-danger{background:#fff;color:var(--red);border:1px solid var(--red)}
+  .btn-danger:hover{background:var(--red-bg)}
+  .btn-green{background:#fff;color:var(--green);border:1px solid var(--green)}
+  .btn-green:hover{background:var(--green-bg)}
+  .btn-sm{padding:5px 10px;font-size:13px}
+  table.tb{width:100%;border-collapse:collapse;background:#fff}
+  .tablewrap{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  table.tb th,table.tb td{border-bottom:1px solid var(--border);padding:10px 12px;text-align:left;font-size:14px}
+  table.tb th{background:#f8fafc;color:var(--muted);font-weight:600}
+  table.tb td a{margin-right:8px}
+  .tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;white-space:nowrap}
+  .tag-blue{background:var(--brand-soft);color:var(--brand)}
+  .tag-amber{background:var(--amber-bg);color:var(--amber)}
+  .tag-orange{background:#fff7ed;color:#ea580c}
+  .tag-green{background:var(--green-bg);color:var(--green)}
+  .tag-red{background:var(--red-bg);color:var(--red)}
+  .tag-gray{background:#e2e8f0;color:var(--muted)}
+  .pt-note{font-size:12px;color:var(--muted);background:#f8fafc;border:1px dashed var(--border);border-radius:6px;padding:6px 10px;margin:10px 0}
+  .pt-note b{color:var(--brand)}
+  /* 登录页 */
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#eef4ff,#e6f0fa);padding:20px}
+  .login-card{width:420px;max-width:100%;background:#fff;border-radius:12px;padding:32px;box-shadow:0 8px 30px rgba(15,23,42,.08);border:1px solid var(--border)}
+  .login-card h1{font-size:22px;margin-bottom:6px}
+  .login-card .sub{margin-bottom:20px}
+  .login-card .field{margin-bottom:14px}
+  .login-card .field input{width:100%}
+  .login-card .roles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  .login-card .roles a{display:block;text-align:center;padding:11px;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;background:#f8fafc}
+  .login-card .roles a:hover{border-color:var(--brand);background:var(--brand-soft);color:var(--brand)}
+  .divider{height:1px;background:var(--border);margin:18px 0}
+  .roles-cap{font-size:12px;color:var(--muted);margin-bottom:8px;text-align:center}
+  .slots{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .slot{flex:1 1 120px;border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;background:#f8fafc;min-width:110px}
+  .slot .sn{font-size:12px;color:var(--muted)}
+  .slot .fn{font-size:13px;margin:6px 0}
+  .slot.done{border-color:var(--green);background:var(--green-bg)}
+  .pager{display:flex;gap:6px;align-items:center;margin:10px 0}
+  .pager span.cur{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+  .pager span.other{width:26px;height:26px;border-radius:50%;background:#f1f5f9;border:1px solid var(--border);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- ========== 视图：登录页 ========== -->
+<section class="view" id="login">
+  <div class="login-wrap">
+    <div class="login-card">
+      <h1>教学档案数字化系统</h1>
+      <div class="sub">账号登录 · 原型演示（无JS，点击下方角色可直达对应工作台）</div>
+      <div class="field"><input type="text" placeholder="工号 / 学工号"></div>
+      <div class="field"><input type="password" placeholder="密码"></div>
+      <a class="btn btn-primary" href="#t-submit" style="width:100%;display:block;box-sizing:border-box;text-align:center">登 录</a>
+      <div class="divider"></div>
+      <div class="roles-cap">—— 或以角色身份进入（演示用） ——</div>
+      <div class="roles">
+        <a href="#t-submit">教师</a>
+        <a href="#dc-review">教研室主任</a>
+        <a href="#dean-review">教学院长</a>
+        <a href="#admin-archive">教务处</a>
+      </div>
+      <div class="pt-note" style="margin-top:16px"><b>原型注：</b>真实系统登录后按角色分发不同工作台；此处为演示点击直达。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教师 · 提交附件 ========== -->
+<section class="view" id="t-submit">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教师 · 张老师</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">我的工作台</div>
+        <a class="nav active" href="#t-submit">提交教学附件</a>
+        <a class="nav" href="#t-status">查看审核情况</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教师工作台 / <b>提交教学附件</b></div>
+        <h1 class="page">提交教学附件</h1>
+        <div class="sub">当前学期 · 2025—2026 学年第 2 学期（仅可提交当前学期，历史学期仅可查看）</div>
+        <div class="toolbar">
+          <select><option>2025—2026 第 2 学期（当前）</option><option>2025—2026 第 1 学期（历史·只读）</option></select>
+          <button class="btn btn-ghost btn-sm">查看其它学期</button>
+        </div>
+
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:18%"><col style="width:10%"><col style="width:10%"><col style="width:12%"><col style="width:10%"><col style="width:12%"><col style="width:10%"><col style="width:18%"></colgroup>
+            <thead><tr><th>开课学院</th><th>课程号</th><th>课程 / 班级</th><th>课前附件</th><th>课后附件</th><th>教研室</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>计算机学院</td><td>CS301</td><td>软件工程导论 · 计科2101</td><td><span class="tag tag-amber">待提交</span></td><td><span class="tag tag-gray">未到课时</span></td><td>软件工程教研室</td><td><span class="tag tag-blue">待提交</span></td><td><a href="#submit-pre">提交课前附件</a><a href="#">查看</a></td></tr>
+              <tr><td>计算机学院</td><td>CS101</td><td>数据结构 · 计科2102</td><td><span class="tag tag-amber">待提交</span></td><td><span class="tag tag-gray">未到课时</span></td><td>软件工程教研室</td><td><span class="tag tag-blue">待提交</span></td><td><a href="#submit-pre">提交课前附件</a><a href="#">查看</a></td></tr>
+              <tr><td>计算机学院</td><td>CS201</td><td>操作系统 · 软工2103</td><td><span class="tag tag-green">已提交·待初审</span></td><td><span class="tag tag-amber">待提交</span></td><td>系统教研室</td><td><span class="tag tag-blue">审核中</span></td><td><a href="#submit-post">提交课后附件</a><a href="#">查看已提交</a></td></tr>
+              <tr><td>计算机学院</td><td>CS102</td><td>数据库原理 · 软工2101</td><td><span class="tag tag-green">已归档</span></td><td><span class="tag tag-green">已归档</span></td><td>系统教研室</td><td><span class="tag tag-green">已归档</span></td><td><a href="#">查看</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" id="submit-pre">
+          <h3>提交课前附件 — 软件工程导论（计科2101）</h3>
+          <div class="toolbar" style="margin-bottom:4px">
+            <span class="lbl">所属教研室：</span><select><option>软件工程教研室</option><option>系统教研室</option></select>
+          </div>
+          <div class="pt-note"><b>原型注：</b>课前附件固定 5 个槽位，分页切换提交；仅支持 PDF 格式，可预览已选文件。</div>
+          <div class="pager"><span class="cur">1</span><span class="other">2</span><span class="other">3</span><span class="other">4</span><span class="other">5</span></div>
+          <div class="slots">
+            <div class="slot done"><div class="sn">槽位 1</div><div class="fn">教学大纲.pdf</div><div class="tag tag-green">已选择</div></div>
+            <div class="slot"><div class="sn">槽位 2</div><div class="fn">教案/课件</div><div class="tag tag-gray">未上传</div></div>
+            <div class="slot"><div class="sn">槽位 3</div><div class="fn">课程目标分析</div><div class="tag tag-gray">未上传</div></div>
+            <div class="slot"><div class="sn">槽位 4</div><div class="fn">实验/实践指导</div><div class="tag tag-gray">未上传</div></div>
+            <div class="slot"><div class="sn">槽位 5</div><div class="fn">考核方案</div><div class="tag tag-gray">未上传</div></div>
+          </div>
+          <div class="toolbar" style="margin-top:14px">
+            <button class="btn btn-ghost">选择文件</button>
+            <button class="btn btn-ghost">预览</button>
+            <button class="btn btn-primary">提交</button>
+          </div>
+          <div class="pt-note"><b>原型注：</b>        <div class="card" id="submit-post">
+          <h3>提交课后附件 — 操作系统（软工2103）</h3>
+          <div class="toolbar" style="margin-bottom:4px"><span class="lbl">所属教研室：</span><select><option>系统教研室</option><option>软件工程教研室</option></select></div>
+          <div class="pt-note"><b>原型注：</b>课后附件数量为 1–N 个（按课程要求），提交流程与课前一致：选择文件(PDF) → 预览 → 提交。</div>
+          <div class="slots">
+            <div class="slot done"><div class="sn">附件 1</div><div class="fn">课后反思总结.pdf</div><div class="tag tag-green">已选择</div></div>
+            <div class="slot"><div class="sn">附件 2</div><div class="fn">期末试卷分析</div><div class="tag tag-gray">未上传</div></div>
+            <div class="slot"><div class="sn">附件 3</div><div class="fn">课程考核材料</div><div class="tag tag-gray">未上传</div></div>
+          </div>
+          <div class="toolbar" style="margin-top:14px">
+            <button class="btn btn-ghost">选择文件</button>
+            <button class="btn btn-ghost">预览</button>
+            <button class="btn btn-primary">提交</button>
+          </div>
+          <div class="pt-note"><b>原型注：</b>课后附件可在课前提交后同步提交；提交后同样进入「待初审」。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教师 · 查看审核 ========== -->
+<section class="view" id="t-status">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教师 · 张老师</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">我的工作台</div>
+        <a class="nav" href="#t-submit">提交教学附件</a>
+        <a class="nav active" href="#t-status">查看审核情况</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教师工作台 / <b>查看审核情况</b></div>
+        <h1 class="page">查看审核情况</h1>
+        <div class="sub">查看本人提交档案的审核状态与审核意见，可修改 / 删除 / 重新提交被驳回附件</div>
+
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:14%"><col style="width:10%"><col style="width:18%"><col style="width:8%"><col style="width:10%"><col style="width:10%"><col style="width:14%"><col style="width:16%"></colgroup>
+            <thead><tr><th>开课学院</th><th>课程号</th><th>课程 / 班级</th><th>类型</th><th>提交时间</th><th>版本</th><th>审核状态</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>计算机学院</td><td>CS201</td><td>操作系统 · 软工2103</td><td>课前</td><td>2026-09-10</td><td>v1</td><td><span class="tag tag-orange">待中间审核</span></td><td><a href="#">查看</a></td></tr>
+              <tr><td>计算机学院</td><td>CS301</td><td>软件工程导论 · 计科2101</td><td>课前</td><td>2026-09-08</td><td>v2</td><td><span class="tag tag-red">已驳回</span></td><td><a href="#">查看</a><a href="#">删除</a><a href="#" style="color:var(--red);font-weight:600">重新提交</a></td></tr>
+              <tr><td>计算机学院</td><td>CS102</td><td>数据库原理 · 软工2101</td><td>课前</td><td>2026-09-01</td><td>v1</td><td><span class="tag tag-green">已归档</span></td><td><a href="#">查看</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pt-note"><b>原型注：</b>审核状态现已支持三级：<span class="tag tag-amber">待初审</span>（教研室主任）→ <span class="tag tag-orange">待中间审核</span>（教务处）→ <span class="tag tag-blue">待终审</span>（教学院长）→ <span class="tag tag-green">已归档</span>；驳回可重提，版本号自动 +1。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教研室主任 · 初审审核 ========== -->
+<section class="view" id="dc-review">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教研室主任 · 李主任</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">我的工作台</div>
+        <a class="nav" href="#t-submit">提交教学附件</a>
+        <div class="group">教研室管理</div>
+        <a class="nav active" href="#dc-review">初审审核</a>
+        <a class="nav" href="#dc-log">审批记录</a>
+        <a class="nav" href="#dc-archive">归档</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教研室主任 / <b>初审审核</b></div>
+        <h1 class="page">初审审核（一级审核）</h1>
+        <div class="sub">本教研室全部已提交档案 · 审核通过后进入下一级（教学院长终审），通过或驳回后仅可查看</div>
+        <div class="toolbar"><select><option>软件工程教研室（本教研室）</option></select><select><option>2025—2026 第 2 学期</option></select></div>
+
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:16%"><col style="width:20%"><col style="width:10%"><col style="width:12%"><col style="width:12%"><col style="width:14%"><col style="width:16%"></colgroup>
+            <thead><tr><th>提交人</th><th>课程 / 班级</th><th>类型</th><th>提交时间</th><th>状态</th><th>当前审核</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>张老师</td><td>软件工程导论 · 计科2101</td><td>课前</td><td>2026-09-08</td><td><span class="tag tag-amber">待初审</span></td><td>教研室主任</td><td><a href="#dc-detail">初审</a><a href="#">查看</a></td></tr>
+              <tr><td>张老师</td><td>操作系统 · 软工2103</td><td>课前</td><td>2026-09-10</td><td><span class="tag tag-amber">待初审</span></td><td>教研室主任</td><td><a href="#dc-detail">初审</a><a href="#">查看</a></td></tr>
+              <tr><td>王老师</td><td>数据结构 · 计科2102</td><td>课前</td><td>2026-09-07</td><td><span class="tag tag-green">已归档</span></td><td>—</td><td><a href="#">查看</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" id="dc-detail">
+          <h3>审批详情 — 软件工程导论（计科2101 · 课前 · v1）</h3>
+          <div class="tablewrap" style="border:none">
+            <table class="tb">
+              <colgroup><col style="width:22%"><col style="width:26%"><col style="width:30%"><col style="width:22%"></colgroup>
+              <thead><tr><th>槽位</th><th>文件名</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td>槽位1 · 教学大纲</td><td>大纲.pdf</td><td><span class="tag tag-green">通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位2 · 教案/课件</td><td>教案.pdf</td><td><span class="tag tag-amber">待定</span></td><td><a href="#">预览</a><label class="lbl" style="margin-left:4px"><input type="checkbox"> 驳回</label></td></tr>
+                <tr><td>槽位3 · 课程目标分析</td><td>目标分析.pdf</td><td><span class="tag tag-green">通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位4 · 实验指导</td><td>实验.pdf</td><td><span class="tag tag-green">通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位5 · 考核方案</td><td>考核.pdf</td><td><span class="tag tag-green">通过</span></td><td><a href="#">预览</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="toolbar" style="margin-top:14px">
+            <span class="lbl">驳回理由：</span><input type="text" placeholder="填写驳回原因（可选单个附件）">
+            <button class="btn btn-green">通过 → 进入下一级审核</button>
+            <button class="btn btn-danger">驳回申请</button>
+            <button class="btn btn-ghost">一键驳回</button>
+          </div>
+          <div class="pt-note"><b>原型注：</b>可勾选单个附件驳回，或点「一键驳回」整份驳回；驳回后状态回到「待提交」，教师修改重提（版本 +1）。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教研室主任 · 审批记录 ========== -->
+<section class="view" id="dc-log">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教研室主任 · 李主任</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">我的工作台</div>
+        <a class="nav" href="#t-submit">提交教学附件</a>
+        <div class="group">教研室管理</div>
+        <a class="nav" href="#dc-review">初审审核</a>
+        <a class="nav active" href="#dc-log">审批记录</a>
+        <a class="nav" href="#dc-archive">归档</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教研室主任 / <b>审批记录</b></div>
+        <h1 class="page">审批记录</h1>
+        <div class="sub">查看本学院所有档案的审批留痕：提交人 · 审核人 · 审核时间</div>
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
+            <thead><tr><th>提交人</th><th>审核人</th><th>审核时间</th><th>审核层级</th><th>结果</th></tr></thead>
+            <tbody>
+              <tr><td>张老师</td><td>李主任</td><td>2026-09-12 10:20</td><td>初审</td><td><span class="tag tag-green">通过</span></td></tr>
+              <tr><td>张老师</td><td>王院长</td><td>2026-09-13 15:40</td><td>终审</td><td><span class="tag tag-green">通过</span></td></tr>
+              <tr><td>张老师</td><td>李主任</td><td>2026-09-05 09:00</td><td>初审</td><td><span class="tag tag-red">驳回</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教研室主任 · 归档 ========== -->
+<section class="view" id="dc-archive">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教研室主任 · 李主任</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">我的工作台</div>
+        <a class="nav" href="#t-submit">提交教学附件</a>
+        <div class="group">教研室管理</div>
+        <a class="nav" href="#dc-review">初审审核</a>
+        <a class="nav" href="#dc-log">审批记录</a>
+        <a class="nav active" href="#dc-archive">归档</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教研室主任 / <b>归档</b></div>
+        <h1 class="page">归档管理</h1>
+        <div class="sub">本学期本学院教学档案 · 通过两级审核后状态为「已归档」</div>
+        <div class="toolbar">
+          <select><option>软件工程教研室（本教研室）</option></select>
+          <select><option>2025—2026 第 2 学期</option><option>2025—2026 第 1 学期</option></select>
+          <button class="btn btn-primary btn-sm">导出为 Excel</button>
+        </div>
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:20%"><col style="width:14%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:14%"><col style="width:16%"></colgroup>
+            <thead><tr><th>课程 / 班级</th><th>提交人</th><th>课前</th><th>课后</th><th>状态</th><th>归档时间</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>软件工程导论 · 计科2101</td><td>张老师</td><td>v2</td><td>—</td><td><span class="tag tag-green">已归档</span></td><td>2026-09-13</td><td><a href="#">查看</a></td></tr>
+              <tr><td>操作系统 · 软工2103</td><td>张老师</td><td>v1</td><td>—</td><td><span class="tag tag-blue">审核中</span></td><td>—</td><td><a href="#">查看</a></td></tr>
+              <tr><td>数据结构 · 计科2102</td><td>王老师</td><td>v1</td><td>v1</td><td><span class="tag tag-green">已归档</span></td><td>2026-09-11</td><td><a href="#">查看</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pt-note"><b>原型注：</b>归档信息可导出为 Excel 保存到本地；「审核中」为提交后、终审通过前的中间态。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教学院长 · 终审审核 ========== -->
+<section class="view" id="dean-review">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教学院长 · 王院长</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">我的工作台</div>
+        <a class="nav" href="#t-submit">提交教学附件</a>
+        <div class="group">学院管理</div>
+        <a class="nav active" href="#dean-review">终审审核</a>
+        <a class="nav" href="#dean-log">审批记录</a>
+        <a class="nav" href="#dean-archive">归档</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教学院长 / <b>终审审核（三级审核）</b></div>
+        <h1 class="page">终审审核</h1>
+        <div class="sub">仅可审批已通过教研室主任初审 + 教务处中间审核的档案 · 通过后归档，通过或驳回后仅可查看</div>
+        <div class="toolbar"><select><option>计算机学院</option></select><select><option>2025—2026 第 2 学期</option></select></div>
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:16%"><col style="width:20%"><col style="width:10%"><col style="width:12%"><col style="width:12%"><col style="width:14%"><col style="width:16%"></colgroup>
+            <thead><tr><th>提交人</th><th>课程 / 班级</th><th>类型</th><th>提交时间</th><th>状态</th><th>当前审核</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>张老师</td><td>软件工程导论 · 计科2101</td><td>课前</td><td>2026-09-08</td><td><span class="tag tag-blue">待终审</span></td><td>教学院长</td><td><a href="#dean-detail">终审</a><a href="#">查看</a></td></tr>
+              <tr><td>王老师</td><td>数据结构 · 计科2102</td><td>课前</td><td>2026-09-07</td><td><span class="tag tag-blue">待终审</span></td><td>教学院长</td><td><a href="#dean-detail">终审</a><a href="#">查看</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card" id="dean-detail">
+          <h3>审批详情 — 软件工程导论（计科2101 · 课前 · v1 · 已过初审）</h3>
+          <div class="tablewrap" style="border:none">
+            <table class="tb">
+              <colgroup><col style="width:22%"><col style="width:26%"><col style="width:30%"><col style="width:22%"></colgroup>
+              <thead><tr><th>槽位</th><th>文件名</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td>槽位1 · 教学大纲</td><td>大纲.pdf</td><td><span class="tag tag-green">通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位2 · 教案/课件</td><td>教案.pdf</td><td><span class="tag tag-green">通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位3 · 课程目标分析</td><td>目标分析.pdf</td><td><span class="tag tag-green">通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位4 · 实验指导</td><td>实验.pdf</td><td><span class="tag tag-green">通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位5 · 考核方案</td><td>考核.pdf</td><td><span class="tag tag-green">通过</span></td><td><a href="#">预览</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="toolbar" style="margin-top:14px">
+            <span class="lbl">驳回理由：</span><input type="text" placeholder="填写驳回原因">
+            <button class="btn btn-green">通过 → 归档</button>
+            <button class="btn btn-danger">驳回申请</button>
+          </div>
+          <div class="pt-note"><b>原型注：</b>终审通过后状态变为「已归档」，可在归档页查看并导出；驳回则回到教师修改重提。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教学院长 · 审批记录 ========== -->
+<section class="view" id="dean-log">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教学院长 · 王院长</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">我的工作台</div>
+        <a class="nav" href="#t-submit">提交教学附件</a>
+        <div class="group">学院管理</div>
+        <a class="nav" href="#dean-review">终审审核</a>
+        <a class="nav active" href="#dean-log">审批记录</a>
+        <a class="nav" href="#dean-archive">归档</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教学院长 / <b>审批记录</b></div>
+        <h1 class="page">审批记录</h1>
+        <div class="sub">查看本院全部档案的审核留痕</div>
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
+            <thead><tr><th>提交人</th><th>审核人</th><th>审核时间</th><th>审核层级</th><th>结果</th></tr></thead>
+            <tbody>
+              <tr><td>张老师</td><td>李主任</td><td>2026-09-12 10:20</td><td>初审</td><td><span class="tag tag-green">通过</span></td></tr>
+              <tr><td>张老师</td><td>王院长</td><td>2026-09-13 15:40</td><td>终审</td><td><span class="tag tag-green">通过</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教学院长 · 归档 ========== -->
+<section class="view" id="dean-archive">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教学院长 · 王院长</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">我的工作台</div>
+        <a class="nav" href="#t-submit">提交教学附件</a>
+        <div class="group">学院管理</div>
+        <a class="nav" href="#dean-review">终审审核</a>
+        <a class="nav" href="#dean-log">审批记录</a>
+        <a class="nav active" href="#dean-archive">归档</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教学院长 / <b>归档</b></div>
+        <h1 class="page">归档管理</h1>
+        <div class="sub">本学期本院教学档案 · 按教研室查看</div>
+        <div class="toolbar">
+          <select><option>计算机学院（全院）</option></select>
+          <select><option>2025—2026 第 2 学期</option><option>2025—2026 第 1 学期</option></select>
+          <button class="btn btn-primary btn-sm">导出为 Excel</button>
+        </div>
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:20%"><col style="width:12%"><col style="width:14%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:18%"></colgroup>
+            <thead><tr><th>课程 / 班级</th><th>教研室</th><th>提交人</th><th>课前</th><th>课后</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>软件工程导论 · 计科2101</td><td>软件工程教研室</td><td>张老师</td><td>v2</td><td>—</td><td><span class="tag tag-green">已归档</span></td><td><a href="#">查看</a></td></tr>
+              <tr><td>操作系统 · 软工2103</td><td>系统教研室</td><td>张老师</td><td>v1</td><td>—</td><td><span class="tag tag-blue">审核中</span></td><td><a href="#">查看</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教务处 · 归档总览 ========== -->
+<section class="view" id="admin-archive">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教务处 · 教务处管理员</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">全校档案管理</div>
+        <a class="nav active" href="#admin-archive">归档总览</a>
+        <a class="nav" href="#admin-middle">中间审核</a>
+        <div class="group">基础数据管理</div>
+        <a class="nav" href="#admin-teacher">教师管理</a>
+        <a class="nav" href="#admin-course">课程管理</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教务处 / <b>归档总览</b></div>
+        <h1 class="page">归档总览</h1>
+        <div class="sub">全校所有学院的教学档案归档情况 · 可查看全部学院与各学期</div>
+        <div class="toolbar">
+          <select><option>全部学院</option><option>计算机学院</option><option>机械工程学院</option></select>
+          <select><option>全部教研室</option><option>软件工程教研室</option><option>系统教研室</option></select>
+          <select><option>2025—2026 第 2 学期</option><option>2025—2026 第 1 学期</option></select>
+          <button class="btn btn-ghost btn-sm">搜索</button>
+          <button class="btn btn-primary btn-sm">导出为 Excel</button>
+        </div>
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:16%"><col style="width:12%"><col style="width:14%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:22%"></colgroup>
+            <thead><tr><th>学院</th><th>教研室</th><th>课程 / 班级</th><th>提交人</th><th>课前</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>计算机学院</td><td>软件工程教研室</td><td>软件工程导论 · 计科2101</td><td>张老师</td><td>v2</td><td><span class="tag tag-green">已归档</span></td><td><a href="#">查看</a></td></tr>
+              <tr><td>计算机学院</td><td>系统教研室</td><td>操作系统 · 软工2103</td><td>张老师</td><td>v1</td><td><span class="tag tag-blue">审核中</span></td><td><a href="#">查看</a></td></tr>
+              <tr><td>机械工程学院</td><td>机械设计教研室</td><td>机械原理 · 机制2101</td><td>刘老师</td><td>v1</td><td><span class="tag tag-green">已归档</span></td><td><a href="#">查看</a></td></tr>
+            </tbody>
+          </table>
+        </tablewrap>
+        <div class="pt-note"><b>原型注：</b>教务处可查看所有教学档案，选中学院 + 学期点「搜索」显示对应归档信息，并可导出 Excel。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教务处 · 中间审核 ========== -->
+<section class="view" id="admin-middle">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教务处 · 教务处管理员</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">全校档案管理</div>
+        <a class="nav" href="#admin-archive">归档总览</a>
+        <a class="nav active" href="#admin-middle">中间审核</a>
+        <div class="group">基础数据管理</div>
+        <a class="nav" href="#admin-teacher">教师管理</a>
+        <a class="nav" href="#admin-course">课程管理</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教务处 / <b>中间审核</b></div>
+        <h1 class="page">中间审核（二级审核）</h1>
+        <div class="sub">教研室主任初审通过的档案，由教务处进行中间审核 · 通过后进入教学院长终审 · 驳回回退教师重提</div>
+        <div class="toolbar">
+          <select><option>计算机学院</option><option>机械工程学院</option><option>电子信息学院</option></select>
+          <select><option>软件工程教研室</option><option>系统教研室</option></select>
+          <select><option>2025—2026 第 2 学期</option></select>
+          <button class="btn btn-ghost btn-sm">搜索</button>
+        </div>
+
+        <div class="tablewrap">
+          <table class="tb">
+            <colgroup><col style="width:14%"><col style="width:18%"><col style="width:8%"><col style="width:12%"><col style="width:10%"><col style="width:16%"><col style="width:22%"></colgroup>
+            <thead><tr><th>开课学院</th><th>课程 / 班级</th><th>类型</th><th>提交人</th><th>提交时间</th><th>初审情况</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>计算机学院</td><td>软件工程导论 · 计科2101</td><td>课前</td><td>张老师</td><td>2026-09-08</td><td><span class="tag tag-green">主任已通过 · 2026-09-12</span></td><td><a href="#admin-middle-detail">审核</a><a href="#">查看</a></td></tr>
+              <tr><td>计算机学院</td><td>操作系统 · 软工2103</td><td>课前</td><td>张老师</td><td>2026-09-10</td><td><span class="tag tag-green">主任已通过 · 2026-09-13</span></td><td><a href="#admin-middle-detail">审核</a><a href="#">查看</a></td></tr>
+              <tr><td>计算机学院</td><td>数据结构 · 计科2102</td><td>课前</td><td>王老师</td><td>2026-09-07</td><td><span class="tag tag-green">主任已通过 · 2026-09-10</span></td><td><a href="#admin-middle-detail">审核</a><a href="#">查看</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" id="admin-middle-detail">
+          <h3>审批详情 — 软件工程导论（计科2101 · 课前 · v1 · 已过初审）</h3>
+          <div class="tablewrap" style="border:none">
+            <table class="tb">
+              <colgroup><col style="width:22%"><col style="width:26%"><col style="width:30%"><col style="width:22%"></colgroup>
+              <thead><tr><th>槽位</th><th>文件名</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td>槽位1 · 教学大纲</td><td>大纲.pdf</td><td><span class="tag tag-green">初审通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位2 · 教案/课件</td><td>教案.pdf</td><td><span class="tag tag-green">初审通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位3 · 课程目标分析</td><td>目标分析.pdf</td><td><span class="tag tag-green">初审通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位4 · 实验指导</td><td>实验.pdf</td><td><span class="tag tag-green">初审通过</span></td><td><a href="#">预览</a></td></tr>
+                <tr><td>槽位5 · 考核方案</td><td>考核.pdf</td><td><span class="tag tag-green">初审通过</span></td><td><a href="#">预览</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="toolbar" style="margin-top:14px">
+            <span class="lbl">中间审核意见：</span><input type="text" placeholder="填写审核意见（可选）">
+            <button class="btn btn-green">通过 → 进入终审队列</button>
+            <button class="btn btn-danger">驳回申请</button>
+          </div>
+          <div class="pt-note"><b>原型注：</b>中间审核为三级审核的第 2 级（主任初审 → 教务处中间审核 → 院长终审），教务处可从全校范围审阅初审通过的档案，驳回后档案回退至教师重提。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教务处 · 教师管理 ========== -->
+<section class="view" id="admin-teacher">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教务处 · 教务处管理员</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">全校档案管理</div>
+        <a class="nav" href="#admin-archive">归档总览</a>
+        <a class="nav" href="#admin-middle">中间审核</a>
+        <div class="group">基础数据管理</div>
+        <a class="nav active" href="#admin-teacher">教师管理</a>
+        <a class="nav" href="#admin-course">课程管理</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教务处 / <b>教师管理</b></div>
+        <h1 class="page">教师管理（增删查改）</h1>
+        <div class="sub">维护系统内教师账号 · 新增 / 编辑 / 停用 / 删除</div>
+
+        <div class="toolbar">
+          <input type="text" placeholder="按工号 / 姓名搜索" style="min-width:200px">
+          <select><option>全部学院</option><option>计算机学院</option><option>机械工程学院</option></select>
+          <select><option>全部教研室</option><option>软件工程教研室</option><option>系统教研室</option></select>
+          <button class="btn btn-ghost btn-sm">搜索</button>
+          <button class="btn btn-primary btn-sm" style="margin-left:auto">+ 新增教师</button>
+        </div>
+
+        <div class="tablewrap">
+          <table class="tb">
+            <thead><tr><th>工号</th><th>姓名</th><th>学院</th><th>教研室</th><th>邮箱</th><th>联系电话</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>T001</td><td>张老师</td><td>计算机学院</td><td>软件工程教研室</td><td>teacher001@example.com</td><td>138****0001</td><td><span class="tag tag-green">启用</span></td><td><a href="#">编辑</a><a href="#">重置密码</a><a href="#" style="color:var(--red)">停用</a></td></tr>
+              <tr><td>T002</td><td>李老师</td><td>计算机学院</td><td>软件工程教研室</td><td>teacher002@example.com</td><td>138****0002</td><td><span class="tag tag-green">启用</span></td><td><a href="#">编辑</a><a href="#">重置密码</a><a href="#" style="color:var(--red)">停用</a></td></tr>
+              <tr><td>T003</td><td>王老师</td><td>计算机学院</td><td>系统教研室</td><td>teacher003@example.com</td><td>138****0003</td><td><span class="tag tag-green">启用</span></td><td><a href="#">编辑</a><a href="#">重置密码</a><a href="#" style="color:var(--red)">停用</a></td></tr>
+              <tr><td>T004</td><td>赵老师</td><td>机械工程学院</td><td>机械设计教研室</td><td>teacher004@example.com</td><td>138****0004</td><td><span class="tag tag-gray">已停用</span></td><td><a href="#">编辑</a><a href="#" style="color:var(--green)">启用</a><a href="#" style="color:var(--red)">删除</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>新增 / 编辑教师 <span class="pt-note" style="display:inline-block;margin-left:10px">BCrypt 密码：P@ssw0rd（部署时用 BCryptPasswordEncoder 替换）</span></h3>
+          <div class="toolbar" style="flex-wrap:wrap;gap:10px 20px">
+            <span class="lbl">工号：</span><input type="text" placeholder="如 T005">
+            <span class="lbl">姓名：</span><input type="text" placeholder="真实姓名">
+            <span class="lbl">登录用户名：</span><input type="text" placeholder="英文 / 拼音">
+            <span class="lbl">初始密码：</span><input type="password" placeholder="P@ssw0rd" style="min-width:140px">
+          </div>
+          <div class="toolbar" style="flex-wrap:wrap;gap:10px 20px;margin-top:10px">
+            <span class="lbl">所属学院：</span><select><option>计算机学院</option><option>机械工程学院</option></select>
+            <span class="lbl">所属教研室：</span><select><option>软件工程教研室</option><option>系统教研室</option></select>
+            <span class="lbl">角色：</span><select><option>teacher（教师）</option><option>dean_chair（教研室主任）</option><option>dean（教学院长）</option></select>
+            <span class="lbl">邮箱：</span><input type="text" placeholder="email@example.com" style="min-width:180px">
+          </div>
+          <div class="toolbar" style="margin-top:14px">
+            <button class="btn btn-primary">保存</button>
+            <button class="btn btn-ghost">取消</button>
+          </div>
+        </div>
+        <div class="pt-note"><b>原型注：</b>教师 CRUD 对应数据库 t_user 表（role='teacher' / 'dean_chair' / 'dean'），新增时密码通过 BCryptPasswordEncoder 加密后存入 password 字段（60 字符 $2a$10$... 格式）。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 视图：教务处 · 课程管理 ========== -->
+<section class="view" id="admin-course">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">教学档案数字化系统</div>
+      <div class="user"><span>教务处 · 教务处管理员</span><a href="#login">退出登录</a></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="group">全校档案管理</div>
+        <a class="nav" href="#admin-archive">归档总览</a>
+        <a class="nav" href="#admin-middle">中间审核</a>
+        <div class="group">基础数据管理</div>
+        <a class="nav" href="#admin-teacher">教师管理</a>
+        <a class="nav active" href="#admin-course">课程管理</a>
+      </div>
+      <div class="main">
+        <div class="crumb">教务处 / <b>课程管理</b></div>
+        <h1 class="page">课程管理（增删查改）</h1>
+        <div class="sub">维护课程主数据 · 管理课程代码、学分、课时、所属教研室</div>
+
+        <div class="toolbar">
+          <input type="text" placeholder="按课程号 / 课程名称搜索" style="min-width:200px">
+          <select><option>全部学院</option><option>计算机学院</option><option>机械工程学院</option></select>
+          <select><option>全部类型</option><option>必修</option><option>选修</option></select>
+          <button class="btn btn-ghost btn-sm">搜索</button>
+          <button class="btn btn-primary btn-sm" style="margin-left:auto">+ 新增课程</button>
+        </div>
+
+        <div class="tablewrap">
+          <table class="tb">
+            <thead><tr><th>课程号</th><th>课程名称</th><th>开课学院</th><th>教研室</th><th>学分</th><th>学时</th><th>类型</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>CS101</td><td>数据结构</td><td>计算机学院</td><td>软件工程教研室</td><td>4.0</td><td>64</td><td><span class="tag tag-blue">必修</span></td><td><span class="tag tag-green">启用</span></td><td><a href="#">编辑</a><a href="#" style="color:var(--red)">停用</a></td></tr>
+              <tr><td>CS201</td><td>操作系统</td><td>计算机学院</td><td>软件工程教研室</td><td>3.5</td><td>56</td><td><span class="tag tag-blue">必修</span></td><td><span class="tag tag-green">启用</span></td><td><a href="#">编辑</a><a href="#" style="color:var(--red)">停用</a></td></tr>
+              <tr><td>CS301</td><td>软件工程</td><td>计算机学院</td><td>软件工程教研室</td><td>3.0</td><td>48</td><td><span class="tag tag-blue">必修</span></td><td><span class="tag tag-green">启用</span></td><td><a href="#">编辑</a><a href="#" style="color:var(--red)">停用</a></td></tr>
+              <tr><td>CS401</td><td>人工智能导论</td><td>计算机学院</td><td>软件工程教研室</td><td>2.0</td><td>32</td><td><span class="tag tag-amber">选修</span></td><td><span class="tag tag-green">启用</span></td><td><a href="#">编辑</a><a href="#" style="color:var(--red)">停用</a></td></tr>
+              <tr><td>ME101</td><td>机械原理</td><td>机械工程学院</td><td>机械设计教研室</td><td>4.0</td><td>64</td><td><span class="tag tag-blue">必修</span></td><td><span class="tag tag-green">启用</span></td><td><a href="#">编辑</a><a href="#" style="color:var(--red)">停用</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>新增 / 编辑课程</h3>
+          <div class="toolbar" style="flex-wrap:wrap;gap:10px 20px">
+            <span class="lbl">课程号：</span><input type="text" placeholder="如 CS501" style="min-width:140px">
+            <span class="lbl">课程名称：</span><input type="text" placeholder="中文课程名">
+            <span class="lbl">学分：</span><input type="text" placeholder="3.0" style="width:80px">
+            <span class="lbl">学时：</span><input type="text" placeholder="48" style="width:80px">
+          </div>
+          <div class="toolbar" style="flex-wrap:wrap;gap:10px 20px;margin-top:10px">
+            <span class="lbl">课程类型：</span><select><option>必修</option><option>选修</option><option>通识</option></select>
+            <span class="lbl">所属学院：</span><select><option>计算机学院</option><option>机械工程学院</option></select>
+            <span class="lbl">所属教研室：</span><select><option>软件工程教研室</option><option>系统教研室</option></select>
+            <span class="lbl">状态：</span><select><option>启用</option><option>停用</option></select>
+          </div>
+          <div class="toolbar" style="margin-top:14px">
+            <button class="btn btn-primary">保存</button>
+            <button class="btn btn-ghost">取消</button>
+          </div>
+        </div>
+        <div class="pt-note"><b>原型注：</b>课程 CRUD 对应数据库 t_course 表，开课学院通过 t_department → t_college 关联自动推导，前端下拉按教研室归属学院展示。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

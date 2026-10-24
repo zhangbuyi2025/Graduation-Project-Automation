@@ -1,0 +1,50 @@
+# ============================================================
+# lang-to-ppt-to-fullstack-ppt .gitignore
+# ============================================================
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ---------- Node ----------
+# 前端工程的依赖目录一律不入库；但本 Skill 随包内置的
+# internal/deps/node_modules 必须保留（自包含的 Node 依赖）
+node_modules/
+!internal/deps/node_modules/
+!internal/deps/node_modules/**
+
+# ---------- 构建产物 ----------
+target/
+dist/
+dist-ssr/
+*.class
+
+# ---------- 运行期工作区 / 生成物 ----------
+# 正常情况下这些只应出现在用户的项目根目录；此处兜底防止误提交到本仓库
+projects/
+svg_output/
+svg_final/
+exports/
+live_preview/
+*_workspace/
+*.log
+
+# ---------- 密钥 / 本地配置（.env.example 照常入库） ----------
+.env
+.env.local
+!.env.example
+
+# ---------- 编辑器 / 系统 ----------
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini

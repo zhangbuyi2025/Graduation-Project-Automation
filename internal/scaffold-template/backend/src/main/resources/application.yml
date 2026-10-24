@@ -1,0 +1,176 @@
+
+#注释掉的是部署时需要修改后的，生效的在下面。
+
+#spring:
+#  application:
+#    name: web
+#  servlet:
+#    multipart:
+#      max-file-size: 10MB
+#      max-request-size: 100MB
+#
+#  # ===================== MySQL 改成 Docker 连接 =====================
+#  datasource:
+#    url: jdbc:mysql://mysql:3306/users?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+#    username: root
+#    password:   # 改成你 docker-compose 里的密码
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#
+#  # RabbitMQ配置（已注释，不再使用）
+#  # rabbitmq:
+#  #   host: rabbitmq
+#  #   port: 5672
+#  #   username: admin
+#  #   password: 123456
+#
+#  thymeleaf:
+#    prefix: classpath:/templates/
+#    suffix: .html
+#    mode: HTML
+#    encoding: UTF-8
+#
+#  # ===================== Redis 改成 Docker 连接 =====================
+#  data:
+#    redis:
+#      host: redis       # 这里必须是容器名，不能写 localhost
+#      port: 6379
+#      password: ""      # 你 Redis 没设密码，保持空
+#      database: 0
+#      timeout: 10s
+#      lettuce:
+#        pool:
+#          max-active: 8
+#          max-idle: 8
+#          min-idle: 0
+#          max-wait: -1ms
+#
+#  # ===================== 缓存 =====================
+#  cache:
+#    type: redis
+#    redis:
+#      time-to-live: 3600000
+#      key-prefix: "cache:"
+#      use-key-prefix: true
+#      cache-null-values: true
+#
+#  # ===================== QQ邮箱（不动） =====================
+#  mail:
+#    host: smtp.qq.com
+#    username: 2741418944@qq.com
+#    password: rlqwiwlhnfbgdghf
+#    default-encoding: UTF-8
+#    properties:
+#      mail:
+#        smtp:
+#          ssl:
+#            enable: true
+#        debug: true
+#
+## ===================== 文件上传路径（Docker 路径） =====================
+#file:
+#  upload-dir: /upload/  # 容器内路径，后面会挂载到服务器
+#  image-dir: /images/
+#
+## MyBatis-Plus（不动）
+#mybatis-plus:
+#  mapper-locations: classpath:mapper/*.xml
+#  type-aliases-package: com.example.demo.entity
+#  configuration:
+#    map-underscore-to-camel-case: true
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+spring:
+  application:
+    name: edu_digization
+  servlet:
+    multipart:
+      max-file-size: 10MB  # 单个文件最大大小
+      max-request-size: 100MB  # 单次请求最大大小
+  datasource:
+    url: jdbc:mysql://localhost:3306/teaching_archive?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8
+    username: root
+    password: root  # 本地开发默认密码，部署时修改
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  thymeleaf:
+    # 开发环境关闭缓存，修改页面后无需重启
+    #    cache: false
+    # 模板文件前缀，默认就是 classpath:/templates/
+    prefix: classpath:/templates/
+    # 模板文件后缀
+    suffix: .html
+    # 模板模式
+    mode: HTML
+    # 编码格式
+    encoding: UTF-8
+  # ===================== 新增 Redis 配置 =====================
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
+      database: 0
+      timeout: 10s
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+  # ===================== 缓存改为 Redis =====================
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000  # 缓存1小时
+      key-prefix: "cache:"
+      use-key-prefix: true
+      cache-null-values: true
+  # ===================== Ehcache 缓存配置 =====================
+  #  cache:
+  #    jcache:
+  #      config: classpath:ehcache.xml  # 指定Ehcache配置文件
+  #    type: jcache  # 明确使用JCache(Ehcache)
+  #    cache:
+  #      type: ehcache
+  #      ehcache:
+  #        config: classpath:ehcache.xml
+
+  # QQ邮箱配置
+  mail:
+    # 邮箱 SMTP 地址
+    host: smtp.qq.com
+    # 你的邮箱账号
+    username: 2741418944@qq.com
+    # 你的授权码（不是原始密码）
+    password: rlqwiwlhnfbgdghf
+    # 编码格式
+    default-encoding: UTF-8
+    # 额外配置（必须加，否则发送失败）
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true # 开启SSL加密
+        debug: false # 开启debug，方便看日志
+
+file:
+  upload-dir: E:/edu_digitization_upload/  # 本地文件存储路径（PDF 附件）
+  image-dir: E:/edu_digitization_upload/images/  # 前端图片存储路径
+
+
+# MyBatis-Plus配置（基础查询无需）
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml # XML映射文件路径
+  type-aliases-package: com.example.edu_digization.entity # 实体类别名包
+  configuration:
+    map-underscore-to-camel-case: true  # 下划线转驼峰
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 开启SQL日志
+
+# ============ JWT 配置 ============
+jwt:
+  secret: badminton-secret-key-for-jwt-token-signing-2024
+  expiration-ms: 7200000  # 2小时
+
+# ============ 服务端口 ============
+server:
+  port: 8080

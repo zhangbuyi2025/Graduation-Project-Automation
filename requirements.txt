@@ -1,0 +1,22 @@
+# Python dependencies for this skill (minimal runtime set).
+# NOTE: these packages are NOT bundled; bootstrap.py installs them on first run
+#       (internet required). Node deps (docx) ARE bundled in internal/deps.
+# Windows only.
+#   python "<SKILL_DIR>/internal/scripts/bootstrap.py"     # auto install (mirror fallback)
+#
+# Covers: SVG quality check, SVG -> PPTX export, live preview server,
+#         PPT/DOCX -> Markdown, SRS DOCX generation, DOCX read-back.
+python-pptx>=0.6.23
+Pillow>=10.0.0
+flask>=3.0.0
+PyYAML>=6.0
+markitdown>=0.1.0
+python-docx>=1.1.0
+#
+# NOT installed by default (only when a concrete need appears):
+#   pymupdf             - user supplies a PDF as the requirement source
+#   skia-pathops, uharfbuzz - SVG shape boolean / text operand outline
+#   edge-tts            - narration audio
+#   google-genai        - AI image generation backends
+#   openpyxl, XlsxWriter - Excel based decks
+# Install manually: python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple <pkg>
