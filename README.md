@@ -110,6 +110,13 @@ python "<Skills目录>\lang-to-ppt-to-fullstack-ppt\internal\scripts\bootstrap.p
 - **`mvnw.cmd` 报 `'powershell' is not recognized`**：Maven Wrapper 依赖 Windows PowerShell（`C:\Windows\System32\WindowsPowerShell\v1.0`），请确认该路径在 PATH 中。
 - **Word 目录打开后页码不对**：全选后按 `F9` 刷新域。
 - **pip 安装慢或失败**：手动执行 `python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple`。
+- **首次运行报 `No module named ...` 或 markitdown / onnxruntime 相关报错（传递依赖问题）**：`requirements.txt` 只锁定了 6 个直接依赖，它们的传递依赖（如 `markitdown → magika → onnxruntime/numpy/protobuf`）在安装时会自动取兼容区间内的最新版。这些库都很成熟，正常情况下不会出问题；但 `magika` 对 `onnxruntime` 的要求没有上限，万一将来 onnxruntime 发布不兼容的大版本，可能在执行 PPT/DOCX 转换时报错。解决方法：在 `requirements.txt` 末尾追加一行，把出问题的传递依赖钉到当前可用版本，例如：
+
+  ```text
+  onnxruntime==1.31.0
+  ```
+
+  然后重新执行 `python internal\scripts\bootstrap.py` 即可（确认当前可用版本号可用 `pip show onnxruntime` 查看，或在 [PyPI](https://pypi.org/project/onnxruntime/) 查询）。
 
 ## 开源许可
 
