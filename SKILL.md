@@ -159,7 +159,7 @@ python "<SKILL_DIR>\internal\scripts\bootstrap.py" --mirror  # 直接走国内�
 
 1. 读取三件套，确定：数据库名 `db`、snake 项目名、角色分组、后端包名 `com.example.<snake>`、前端端口分配。
 2. `backend` → `<根>/<snake>_backend/`，删除业务样例（controller/dto/vo/entity/mapper/service、示例枚举、test），保留框架级文件。
-3. 包名与应用重命名：`com/example/edu_digization` → 新包名；`EduDigizationApplication` → `<Pascal>Application`；`pom.xml` / `application.yml` / `application.properties` 同步改名；`SecurityUtils` 简化。
+3. 包名与应用重命名：`com/example/edu_digization` → 新包名；`EduDigizationApplication` → `<Pascal>Application`；`pom.xml` / `application.yml` / `application.properties` 同步改名；`SecurityUtils` 简化。改完用 `Select-String` 扫 `edu_digization|teaching_archive` 残留（含 yml 里的裸应用名/库名），必须零输出。
 4. `webfront/User`、`webfront/Manager` → `<根>/<snake>_webfront/<角色端>/`；删除业务 `api/components/layout/views/utils` 与 `dist`，保留最小可构建文件；`package.json` name、`vite.config.js` 端口、`index.html` title 按工程改名。
 5. 生成 `<根>/<项目名>_交互原型.html`（单文件、无 JS、`:target` 路由，角色 × 页面全覆盖，规范见 [architecture-template.md](references/architecture-template.md) 第 4 节，样式参考 `internal/scaffold-template/prototype-reference.html`）。
 6. 骨架自检：后端 `mvnw.cmd compile`、前端 `npm install && npm run build`；环境缺失（无 JDK 17 / Node 22 / 网络）则记录缺口交由阶段 D 统一验证。自检不通过必须修到通过再进阶段 D。

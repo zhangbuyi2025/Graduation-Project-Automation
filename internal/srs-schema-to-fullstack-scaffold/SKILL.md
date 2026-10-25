@@ -93,6 +93,7 @@ PENDING(待初审) --初审通过--> FIRST_REVIEW(待中间审核)
 9. **安全权限**：
    - JWT 过滤器中角色 `toUpperCase()` 后加 `ROLE_` 前缀（`dean_chair → ROLE_DEAN_CHAIR`）
    - 登录即可访问的路径放行，方法级权限用 `@PreAuthorize`（初审 `hasRole('DEAN_CHAIR')`、终审 `hasRole('DEAN')`、教务处 `hasRole('ADMIN')`）
+   - **白名单核对（必做）**：对照 SRS 接口契约逐条核对 `config/SecurityConfig`——所有匿名路径（登录、注册、公开查询等）必须显式 `.requestMatchers(<契约路径>).permitAll()`。骨架默认白名单不含新项目的登录路径，漏加会导致前端登录即 401/403。
 
 ### 依赖补齐（编译报错对照）
 

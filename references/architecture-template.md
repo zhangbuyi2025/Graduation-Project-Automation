@@ -111,6 +111,12 @@ Get-ChildItem '<根>\<snake>_backend\src' -Recurse -File -Include *.java,*.yml,*
 }
 ```
 
+> **专项检查（必做，最常踩）**：上面的模式只替换带包前缀的 `com.example.edu_digization`，覆盖不到 `application.yml` / `application.properties` 里**裸**的 `spring.application.name: edu_digization` 与 JDBC URL 里的库名 `teaching_archive`。替换完成后必须全文扫残留，要求零输出：
+>
+> ```powershell
+> Select-String -Path '<根>\<snake>_backend\src\main\resources\*' -Pattern 'edu_digization|teaching_archive'
+> ```
+
 3. 入口类改名（类名 + 文件名同步）：
 
 powershell 命令提示下执行：

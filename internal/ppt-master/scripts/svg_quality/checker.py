@@ -20,6 +20,7 @@ import html
 import json
 import math
 import re
+import sys
 from pathlib import Path
 from collections import Counter, defaultdict
 from typing import Dict, List, Tuple
@@ -2536,12 +2537,13 @@ class SVGQualityChecker:
             )
             return
         def normalizer(error: str) -> str:
+            py = Path(sys.executable).name or "python"
             if "page-space metadata" in error:
                 return (
-                    "`python3 scripts/compact_svg_coordinates.py <svg_output> "
+                    f"`{py} scripts/compact_svg_coordinates.py <svg_output> "
                     "--inplace --keep-native-frames`"
                 )
-            return "`python3 scripts/compact_svg_styles.py <svg_output> --inplace`"
+            return f"`{py} scripts/compact_svg_styles.py <svg_output> --inplace`"
 
         result['warnings'].extend(
             f"Noncanonical compact authoring: {error} "

@@ -120,6 +120,9 @@ public interface ArchiveMapper extends BaseMapper<Archive> {
 ```
 - 配置开启下划线转驼峰（`mybatis-plus.configuration.map-underscore-to-camel-case=true`）
 - 简单 CRUD 用 `BaseMapper` 方法，不手写 SQL；多表关联才用 `@Select`
+- **动态 SQL 两条硬规则（首次实现最常踩）**：
+  1. `@Select` / `@Update` 等注解里只要出现 `<if>`、`<where>`、`<set>`、`<foreach>` 等动态标签，**必须**整体用 `<script> ... </script>` 包裹，否则标签不生效（直接报 SQL 语法错或条件丢失）；
+  2. 不在 `<script>` 上下文的注解 SQL 中，`<` 必须写成 `&lt;`（如 `WHERE age &lt; #{max}`），否则 XML 解析失败。
 
 ## Service
 

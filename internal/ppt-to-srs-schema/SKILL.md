@@ -232,15 +232,22 @@ Word 打开后**目录不会立即渲染**——需要按 `F9` 或右键目录 �
 
 ### SQL 验证（必须通过）
 
-生成后跑以下检查：
+生成后跑以下检查（**先按本项目实际情况改 3 个参数，不要用示例值**）：
 ```python
 sql = open("xxx.sql", encoding="utf-8").read()
+
+EXPECTED_TABLES = 10            # 本项目 SRS 目录表的实际张数
+EXPECTED_FKS = 10               # 本项目外键的最少条数
+DOMAIN_CHECK = "chk_att_pdf_only"  # 本项目至少一个业务 CHECK 约束名（示例是 PDF 附件域，换成你自己的）
+
 checks = {
-    "CREATE TABLE == 10": sql.count("CREATE TABLE") == 10,
-    "FOREIGN KEY 数量": sql.count("FOREIGN KEY") >= 10,
+    f"CREATE TABLE == {EXPECTED_TABLES}": sql.count("CREATE TABLE") == EXPECTED_TABLES,
+    f"FOREIGN KEY >= {EXPECTED_FKS}": sql.count("FOREIGN KEY") >= EXPECTED_FKS,
     "CHECK 约束": "CONSTRAINT `chk_" in sql,
-    "BCrypt 占位": "PLACEHOLDER_REPLACE_WITH_REAL_BCRYPT_HASH" in sql,
-    "PDF CHECK": "chk_att_pdf_only" in sql,
+    "业务域 CHECK": DOMAIN_CHECK in sql,
+    "BCrypt（占位符或已替换的真实哈希）": (
+        "PLACEHOLDER_REPLACE_WITH_REAL_BCRYPT_HASH" in sql or "$2a$" in sql
+    ),
     "括号平衡": sql.count("(") == sql.count(")"),
 }
 for k, v in checks.items():

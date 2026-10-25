@@ -62,6 +62,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/forget/**").permitAll()
+                        // 登录接口必须匿名放行（标准契约路径；阶段 D 按 SRS 契约核对其余匿名路径）
+                        .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // /api/work/** 业务接口：所有登录角色（教师/主任/院长）均可访问，
                         // 具体方法级权限由 @PreAuthorize 控制
