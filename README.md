@@ -4,6 +4,7 @@
 > 需求规格说明书 → 数据库 SQL → Spring Boot 3 + Vue3 骨架 → 全栈基础代码 → 项目总结 → 答辩 PPT。
 
 这是一个面向 AI 编程助手（Claude Code / Trae / 豆包等支持 Agent Skills 的工具）的**自包含 Skill**：流水线手册、前后端骨架模板、PPT 生成引擎、Word 文档生成器与 Node 依赖全部随包提供，不依赖任何外部 Skill 目录。
+注：PPT相关功能采用的是 hugohe3 的 ppt-master 技能。
 
 ## 功能特性
 
